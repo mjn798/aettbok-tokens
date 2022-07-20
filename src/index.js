@@ -21,19 +21,29 @@ firebase.initializeApp(firebaseConfig)
 app.disable('x-powered-by')
 app.use(express.json())
 
-app.post('/', (req, res) => {
+// CORS middleware
+
+function addCors(_req, res, next) {
+
+    res.header("Access-Control-Allow-Origin", process.env.CORS_ALLOW_ORIGIN)
+    res.header("Access-Control-Allow-Methods", "POST")
+    res.header("Access-Control-Allow-Headers", "Accept-Encoding, Accept, Content-Type")
+
+    return next()
+
+}
+
+// requests
+
+app.options('/', addCors, (_req, res) => res.status(200).send())
+
+app.post('/', addCors, (req, res) => {
 
     /*
         200 (OK)                    = success, return token
         400 (Bad Request)           = missing username / password
         401 (Unauthorized)          = wrong username / password
     */
-
-    // CORS
-
-    res.header("Access-Control-Allow-Origin", "http://localhost:8080")
-    res.header("Access-Control-Allow-Methods", "POST")
-    res.header("Access-Control-Allow-Headers", "Accept-Encoding, Accept, Authorization, Content-Type")
 
     // Authentication
 
@@ -50,16 +60,6 @@ app.post('/', (req, res) => {
         console.error(username, 401, error.code)
         return res.status(401).send()
     })
-
-})
-
-app.options('/', (req, res) => {
-
-    res.header("Access-Control-Allow-Origin", "http://localhost:8080")
-    res.header("Access-Control-Allow-Methods", "POST")
-    res.header("Access-Control-Allow-Headers", "Accept-Encoding, Accept, Authorization, Content-Type")
-
-    return res.status(200).send()
 
 })
 
